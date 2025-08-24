@@ -1,51 +1,46 @@
 const express = require('express');
-const fs = require('fs');
-const path = require('path');
-const { nanoid } = require('nanoid');
+const cors = require('cors');
 const app = express();
-const PORT = 3000;
 
+// Middleware
+app.use(cors());
 app.use(express.json());
-app.use(express.static(path.join(__dirname, 'public')));
 
-// Archivo donde se guardan las keys
-const KEYS_FILE = path.join(__dirname, 'keys.json');
-
-// Funciones para leer/escribir keys
-const loadKeys = () => {
-    if(!fs.existsSync(KEYS_FILE)) return {};
-    return JSON.parse(fs.readFileSync(KEYS_FILE));
+// Keys de ejemplo
+let keys = {
+  "ABC123": { used: false, expiresAt: Date.now() + 7 * 24 * 60 * 60 * 1000 }, // 7 días
+  "DEF456": { used: false, expiresAt: Date.now() + 15 * 24 * 60 * 60 * 1000 }, // 15 días
+  "GHI789": { used: false, expiresAt: null } // permanente
 };
-const saveKeys = (keys) => fs.writeFileSync(KEYS_FILE, JSON.stringify(keys, null, 2));
 
-// Generar nueva key
-app.post('/generate-key', (req, res) => {
-    const { expiresInDays } = req.body;
-    const key = nanoid(10);
-    const expiresAt = Date.now() + (expiresInDays || 7) * 24 * 60 * 60 * 1000;
-
-    const keys = loadKeys();
-    keys[key] = { used: false, expiresAt };
-    saveKeys(keys);
-
-    res.json({ success: true, key, expiresAt });
+// Obtener todas las keys
+app.get('/api/keys', (req, res) => {
+  res.json(keys);
 });
 
-// Validar key
-app.post('/validate-key', (req, res) => {
-    const { key } = req.body;
-    const keys = loadKeys();
-    const record = keys[key];
+// Validar y usar key
+app.post('/api/use-key', (req, res) => {
+  const { key } = req.body;
+  if (!key || !keys[key]) {
+    return res.status(400).json({ error: "Key inválida" });
+  }
 
-    if(!record) return res.json({ success: false, error: 'Key inválida' });
-    if(record.used) return res.json({ success: false, error: 'Key ya usada' });
-    if(record.expiresAt && Date.now() > record.expiresAt) return res.json({ success: false, error: 'Key expirada' });
+  const now = Date.now();
+  const record = keys[key];
 
-    record.used = true;
-    keys[key] = record;
-    saveKeys(keys);
+  if (record.used) {
+    return res.status(400).json({ error: "Key ya usada" });
+  }
 
-    res.json({ success: true });
+  if (record.expiresAt && now > record.expiresAt) {
+    return res.status(400).json({ error: "Key expirada" });
+  }
+
+  record.used = true;
+  keys[key] = record;
+  res.json({ success: true, message: "Key validada correctamente" });
 });
 
-app.listen(PORT, () => console.log(`Server escuchando en http://localhost:${PORT}`));
+// Puerto dinámico para Render
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => console.log(`API Server running on port ${PORT}`));
