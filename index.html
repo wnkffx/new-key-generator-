@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Panel de Keys</title>
+<style>
+body { font-family: Arial; background:#f0f0f0; padding:20px; }
+button { padding:10px 20px; background:#8A2BE2; color:white; border:none; cursor:pointer; }
+input { padding:8px; width:200px; margin-right:10px; }
+.key-list { margin-top:20px; }
+</style>
+</head>
+<body>
+<h1>Generar Key</h1>
+<label>Expiración (días): <input type="number" id="days" value="7"></label>
+<button id="generateBtn">Generar Key</button>
+
+<div class="key-list" id="keyList"></div>
+
+<script>
+const btn = document.getElementById('generateBtn');
+const daysInput = document.getElementById('days');
+const keyList = document.getElementById('keyList');
+
+btn.addEventListener('click', async () => {
+    const days = parseInt(daysInput.value) || 7;
+    const res = await fetch('/generate-key', {
+        method: 'POST',
+        headers: { 'Content-Type':'application/json' },
+        body: JSON.stringify({ expiresInDays: days })
+    });
+    const data = await res.json();
+    if(data.success){
+        const div = document.createElement('div');
+        div.textContent = `Key: ${data.key} | Expira: ${new Date(data.expiresAt).toLocaleString()}`;
+        keyList.appendChild(div);
+    }
+});
+</script>
+</body>
+</html>
