@@ -1,32 +1,16 @@
-API Server de Keys - Sistema de Gestión
+API Server Auxilio
+-----------------
 
-REQUISITOS:
-- Node.js (versión 14 o superior)
-- npm (viene con Node.js)
+Rutas disponibles:
 
-ARCHIVOS:
-- server.js       : Servidor principal de Node.js
-- package.json    : Dependencias
-- public/index.html : Panel web para generar keys
-- keys.json       : Archivo donde se guardan las keys (se genera automáticamente)
+GET  /api/keys       => Devuelve todas las keys
+POST /api/use-key    => Marca una key como usada
+                       JSON body: { "key": "ABC123" }
 
-INSTALACIÓN Y USO:
+Instrucciones:
 
-1. Extraer el contenido del ZIP en una carpeta.
-2. Abrir terminal o CMD en la carpeta del proyecto.
-3. Ejecutar:
-   npm install
-   node server.js
-4. Abrir navegador en:
-   http://localhost:3000
-5. Desde el panel web, puedes generar nuevas keys.
-6. Las keys se guardan en keys.json y se pueden validar desde cualquier HTML usando:
-   POST http://localhost:3000/validate-key
-   {
-     "key": "TU_KEY_AQUI"
-   }
-
-NOTA:
-- Las keys tienen fecha de expiración configurable (por defecto 7 días).
-- Cada key solo puede ser usada una vez.
-- Para usarlo en Android/Chrome, el servidor debe estar corriendo y accesible desde la red.
+1. Hacer push a GitHub.
+2. En Render, crear un "Web Service" apuntando al repo.
+3. Build Command: npm install
+4. Start Command: npm start
+5. Usar la URL de Render en tu panel Auxilio para validar keys.
