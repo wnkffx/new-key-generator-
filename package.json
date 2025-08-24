@@ -1,5 +1,5 @@
 {
-  "name": "key-api-server",
+  "name": "api-server-auxilio",
   "version": "1.0.0",
   "main": "server.js",
   "scripts": {
@@ -7,6 +7,6 @@
   },
   "dependencies": {
     "express": "^4.18.2",
-    "nanoid": "^4.0.0"
+    "cors": "^2.8.5"
   }
 }
